@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Menu</title>
+	<link rel="stylesheet" href="menu.css">
+
+	<!-- Tailwind CSS -->
+	<link href="https://unpkg.com/tailwindcss@^2/dist/tailwind.min.css" rel="stylesheet">
+
+	<!-- Alpine JS -->
+	<script src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v2.7.3/dist/alpine.min.js" defer></script>
+
+</head>
+<body>
+	<!-- fetch dashboard -->
+	
+	<!-- end fetch dashboard -->
+
+	<div x-data="barMenu()" x-init="init()" class="w-full max-w-3xl mx-auto">
+
+		<!-- Cart Sidebar -->
+		<div x-show="!checkout" class="fixed flex flex-col right-0 top-0 h-full w-56 border-l bg-green-500 text-white">
+			<!-- Sidebar header -->
+			<div class="flex justify-between p-4">
+				<h2 class="text-lg font-bold">Your order:</h2>
+				<button x-cloak x-show="orderItems.length > 0" @click="clearOrderItems()" class="flex-shrink text-xs leading-none px-2 rounded bg-transparent border border-green-300 text-green-300 hover:border-green-200 hover:text-green-200">Clear</button>
+			</div>
+
+			<!-- Sidebar body -->
+			<div class="p-4 flex-grow overflow-y-auto shadow-inner">
+				<!-- Show this if current order is empty -->
+				<div x-cloak x-show="orderItems.length == 0" class="mt-12 text-green-200 text-center">
+					<svg class="inline-block w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+					<p class="text font-medium">Y U No order?</p>
+					<p class="text-sm">You didn't order anything yet!</p>
+				</div>
+
+				<!-- Show all order items (if available) -->
+				<template x-cloak x-show="orderItems.length > 0" x-for="(orderItem, index) in orderItems" :key="index">
+					<div class="flex mb-3">
+						<div class="flex-shrink-0 leading-none">
+							<strong x-text="orderItem.amount"></strong>
+							<strong>x</strong>
+						</div>
+						<div class="flex-grow text-sm px-2">
+							<span class="text-green-300" x-text="orderItem.name"></span>
+						</div>
+						<div class="flex-shrink-0 flex items-center divide-x divide-green-600">
+							<button @click="removeBeer(orderItem.name)" class="w-6 h-6 bg-green-700 text-green-400 hover:bg-green-800 leading-none rounded-l-full">-</button>
+							<button @click="addBeer(orderItem.name)" class="w-6 h-6 bg-green-700 text-green-400 hover:bg-green-800 leading-none rounded-r-full">+</button>
+						</div>
+					</div>
+				</template>
+			</div>
+			<!-- Sidebar footer -->
+			<div x-cloak x-show="orderItems.length > 0" class="w-full p-4 bg-green-600">
+				<button @click="checkout = true">Go to checkout</button>
+				<!-- <button  @click="submitOrder()" class="w-full rounded-full bg-white text-green-500 p-2 font-medium">ORDER</button> -->
+			</div>
+		</div>
+
+
+
+
+		<!-- Checkout Sidebar -->
+		<div x-show="checkout" class="fixed flex flex-col right-0 top-0 h-full w-56 border-l bg-green-500 text-white">
+			<!-- Sidebar header -->
+			<div class="flex justify-between p-4">
+				<h2 class="text-lg font-bold">Checkout</h2>
+				<button x-cloak @click="checkout=!checkout" class="flex-shrink text-xs leading-none px-2 rounded bg-transparent border border-green-300 text-green-300 hover:border-green-200 hover:text-green-200">Back</button>
+			</div>
+
+			<!-- Sidebar body -->
+			<div class="p-4 flex-grow overflow-y-auto shadow-inner checkoutForm">
+				<!-- <div x-cloak x-show="orderItems.length == 0" class="mt-12 text-green-200 text-center">
+					<svg class="inline-block w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+					<p class="text font-medium">Y U No order?</p>
+					<p class="text-sm">You didn't order anything yet!</p>
+				</div> -->
+				<template x-for="(orderItem, index) in orderItems" :key="index">
+					<div>
+						<h3>Your order:</h3>
+						<div class="flex mb-3">
+							<div class="flex-shrink-0 leading-none">
+								<span x-text="orderItem.amount"></span>
+								<span>x</span>
+							</div>
+							<div class="flex-grow text-sm px-2">
+								<span class="text-green-300" x-text="orderItem.name"></span>
+							</div>
+						</div>
+					</div>
+				</template>
+					
+
+
+				<!-- display beers -->
+				<div>
+
+				</div>
+				<!-- name, email, card no., card name, card expiration, cvv -->
+				<form action="">
+					<label for="name">Name</label>
+					<input id="name" type="name" placeholder="Name">
+					<p x-show="invalidName" x-text="invalidNameMessage"></p>
+
+					<label for="email">Email</label>
+					<input id="email" type="email" placeholder="Email">
+					<p x-show="invalidEmail" x-text="invalidEmailMessage"></p>
+
+					<label for="ccn">Credit Card Number:</label>
+					<input id="ccn" type="tel" inputmode="numeric" pattern="[0-9\s]{13,19}" autocomplete="cc-number" maxlength="19" minlength="16" placeholder="xxxx xxxx xxxx xxxx">
+					<p x-show="invalidCardNo" x-text="invalidCardNoMessage"></p>
+
+					<label for="card_name">Card Name</label>
+					<input id="card_name" type="name" placeholder="Card Name"> <!-- card name -->
+					<p x-show="invalidCardName" x-text="invalidCardNameMessage"></p>
+
+					<label for="date">Card Expiration date</label>
+					<div class="flex flex-col">
+						<div class="flex">
+							<p>month</p>
+							<select name="month" id="month" placeholder="month">
+								<option value="0">1</option>
+								<option value="1">2</option>
+								<option value="2">3</option>
+								<option value="3">4</option>
+								<option value="4">5</option>
+								<option value="5">6</option>
+								<option value="6">7</option>
+								<option value="7">8</option>
+								<option value="8">9</option>
+								<option value="9">10</option>
+								<option value="10">11</option>
+								<option value="11">12</option>
+						</select>
+						</div>
+						<div class="flex">
+							<p>year</p>
+							<select name="year" id="year" placeholder="year">
+								<option value="2020">2020</option>
+								<option value="2021">2021</option>
+								<option value="2022">2022</option>
+								<option value="2023">2023</option>
+								<option value="2024">2024</option>
+								<option value="2025">2025</option>
+								<option value="2026">2026</option>
+								<option value="2027">2027</option>
+								<option value="2028">2028</option>
+								<option value="2029">2029</option>
+								<option value="2030">2030</option>
+								<option value="2031">2031</option>
+								<option value="2032">2032</option>
+								<option value="2033">2033</option>
+								<option value="2034">2034</option>
+								<option value="2035">2035</option>
+								<option value="2036">2036</option>
+								<option value="2037">2037</option>
+								<option value="2038">2038</option>
+								<option value="2039">2039</option>
+								<option value="2040">2040</option>
+							</select>		
+						</div>
+						<p x-show="invalidDate" x-text="invalidDateMessage"></p>
+					</div>
+
+					<label for="cvv">CVV</label>
+					<input id="cvv" type="tel" inputmode="numeric" placeholder="CVV">
+					<p x-show="invalidCardCvv" x-text="invalidCardCvvMessage"></p>
+
+
+				</form>
+
+			</div>
+			<!-- Sidebar footer -->
+			<div x-cloak class="w-full p-4 bg-green-600">
+				<!-- <button @click="checkout()">Go to checkout</button> -->
+				<button  @click="submitOrder()" class="w-full rounded-full bg-white text-green-500 p-2 font-medium">ORDER</button>
+			</div>
+		</div>
+
+		<!-- Container -->
+		<div class="flex flex-wrap">
+			<!-- Beer gallery / menu -->
+			<template x-for="(beer, index) in beers" :key="index">
+			    <div class="m-4 border border-green-500 rounded-lg overflow-hidden shadow-lg relative">
+			    	<!-- <img src="https://picsum.photos/200" alt=""> -->
+			    	<img :src="`img/${beer.label}`" alt="" class="max-h-32 mx-auto mt-4">
+			    	<div class="p-4">
+				    	<h4 class="mb-2 font-bold" x-text="beer.name"></h4>
+				    	<p class="text-xs absolute top-0 left-0 m-3 py-1 px-3 bg-yellow-500 text-white font-medium rounded-full">Alc. <span x-text="beer.alc"></span>%</p>
+				    	<p class="text-sm text-gray-700">Category: <span class="text-gray-500" x-text="beer.category"></span></p>
+				    	<p class="text-sm text-gray-700">Popularity: <span class="text-gray-500" x-text="beer.popularity"></span></p>
+				    	<p class="text-sm text-gray-700">Pouring Speed: <span class="text-gray-500" x-text="beer.pouringSpeed"></span></p>
+				    	<div class="flex">
+					    	<button @click="beerModal(beer)" class="mr-1 px-4 py-2 mt-4 w-full rounded border border-green-600 bg-transparent text-green-600 text-sm font-medium hover:bg-green-50">View more</button>
+					    	<button @click="addBeer(beer.name)" class="ml-1 px-4 py-2 mt-4 w-full rounded bg-green-600 text-white text-sm font-medium hover:bg-green-700">Add to order</button>
+				    	</div>
+			    	</div>
+			    </div>
+			</template>
+		</div>
+	
+		<!-- Beer Modal -->
+		<div x-cloak x-show="openModal" class="fixed top-0 left-0 w-full h-full">
+			<div @click="openModal = false"class="absolute bg-black opacity-75 top-0 left-0 w-full h-full z-10"></div>
+			<div class="bg-white rounded shadow-lg max-w-2xl mx-auto p-6 mt-12 z-20 relative mb-12 overflow-y-auto h-4/5">
+				<div class="flex items-center">
+					<!-- Beer summary -->
+					<div class="m-8 flex-grow flex-shrink-0 ">
+						<h4 x-text="modalBeer.name" class="mb-2 font-bold"></h4>
+						<p>
+							Category:
+							<span x-text="modalBeer.category"></span>
+						</p>
+						<p>
+							Pouring Speed:
+							<span x-text="modalBeer.pouringSpeed"></span>
+						</p>
+						<p>
+							Popularity:
+							<span x-text="modalBeer.popularity"></span>
+						</p>
+						<p>Alc: <span x-text="modalBeer.alc"></span>%</p>
+					</div>
+					<!-- Beer img -->
+					<div class="m-8 flex-grow">
+						<!-- <span x-text="modalBeer.label"></span> -->
+						<img :src="`img/${modalBeer.label}`" alt="" class="h-52">
+					</div>
+				</div>
+				<p>
+					Aroma: 
+					<p x-text="modalBeer.description.aroma"></p>
+				</p>
+				<p>
+					Flavor:
+					<p x-text="modalBeer.description.flavor"></p>
+				</p>			
+				<p>
+					Mouthfeel: 
+					<p x-text="modalBeer.description.mouthfeel"></p>
+				</p>
+				<p>
+					Overall impression:
+					<p x-text="modalBeer.description.overallImpression"></p>
+				</p>
+		    	<button @click="addBeer(modalBeer.name); openModal = false;" class="ml-1 px-4 py-2 mt-4 w-full rounded bg-green-600 text-white text-sm font-medium hover:bg-green-700">Add to order</button>
+			</div>
+		</div>
+		<div x-cloak x-show="openPopUp" class="fixed top-0 left-0 w-full h-full" >
+			<div @click="openPopUp = false"class="absolute bg-black opacity-75 top-0 left-0 w-full h-full z-10"></div>
+			<div class="bg-white rounded shadow-lg max-w-lg p-6 z-20 relative h-4/5 inset-1/2" id="PopUp">
+				<p x-text="msgResult"></p>
+			</div>
+		</div>
+	</div>
+</body>
+<script src="menu.js"></script>
+</html>

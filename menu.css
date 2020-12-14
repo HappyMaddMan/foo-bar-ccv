@@ -1,0 +1,40 @@
+[x-cloak] {
+	display: none;
+}
+
+table{
+	text-align: center;
+}
+.beer{
+	width: 100px;
+	height: 100px;
+	background: #666
+	/*align-content: center;*/
+}
+.beer input{
+	
+	width: 50%;
+}
+.beer.active{
+	background: #eee;
+}
+.beerImg{
+	text-align: center;
+}
+.beerCard{
+	width: 200px;
+}
+.checkoutForm input{
+	color:black;
+	padding: 0.25rem;
+	padding-left: 1rem;
+}
+#month{
+	color: black;
+}
+#year{
+	color: black;
+}
+#PopUp{
+	transform: translate(-50%,-50%);
+}
