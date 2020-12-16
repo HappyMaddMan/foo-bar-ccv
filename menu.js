@@ -217,15 +217,6 @@ function barMenu() {
             else{
                 this.invalidCardCvv = false;
             }
-            // if from is not valid show the errors
-
-
-
-            // if form is valid send AJAX request
-
-            // display server message
-
-
             // console.log(`formIsValid = ${formIsValid}`)
             if (formIsValid) {
                 fetch("https://foo-bar-ccv.herokuapp.com/order", {
@@ -238,18 +229,18 @@ function barMenu() {
                 .then(response => response.json())
                 .then(result => {
                     console.log(result)
+                    // if form is valid send AJAX request
                     if (result.status == 200) {
                         this.clearOrderItems()
                         const msg = `Your order has been registered and you have the following ID ${result.id}. You can follow your order by that ID`;
                         console.log(result.id)
                         // orderPopUp(msg);
-
                         this.openPopUp = true;
                         this.msgResult = msg;
                     }
+                    // if from is not valid show the errors
                     else {
                         // Something went wrong
-
                         // orderPopUp(result.message)
                         // alert(result.message)
                         const msg = `We are sorry, Something went wrong: ${result.message}`;
@@ -258,6 +249,7 @@ function barMenu() {
                         this.msgResult = msg;
                     }
                 })
+                // display server message
                 .catch(error => console.log('error', error));
                 // {"message":"We are not serving: GitHop right now!","status":500}
                 // {"message":"added","status":200,"id":30}
