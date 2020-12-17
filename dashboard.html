@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Dashboard</title>
+	<link rel="stylesheet" href="dashboard_manager.css">
+	<link href="https://unpkg.com/tailwindcss@^2/dist/tailwind.min.css" rel="stylesheet">
+	<script src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v2.7.3/dist/alpine.min.js" defer></script>
+
+</head>
+<body>
+	<div x-data="dashboardManager()" x-init="init()" class="w-full h-screen grid grid-rows-8">
+
+		<div class="h-screen flex overflow-hidden bg-gray-100">
+            <div class="flex md:flex-shrink-0">
+                <div class="flex flex-col w-64">
+                    <div class="flex flex-col h-0 flex-1 bg-gray-800">
+                        <div class="pt-5 pb-4"><!--  overflow-y-auto -->
+                            <!-- Bar Info -->
+                            <div class="flex items-center flex-shrink-0 px-4">
+                                <h2 x-text="barName" class="flex-grow text-2xl font-bold text-white">Bar Name</h2>
+                                <span class="text-xs text-gray-400 text-right px-1">
+                                <span>Closing at</span><br>
+                                <span x-text="barClosingTime" >xx:xx</span>
+                            </div>
+                        </div>
+                        
+                        <!-- Bartenders -->
+                        <div>
+                            <!-- Bartender 1 -->
+                            <template x-for="(bartender, index) in bartenders" :key="index">
+	                            <div class="flex-shrink-0 flex bg-gray-800 py-6 px-4">
+	                                <div class="flex-shrink-0 w-full">
+	                                    <div class="flex items-center">
+	                                        <div class="relative">
+	                                            <span class="absolute flex h-3 w-3">
+	                                            	<!-- Pings -->
+	                                            	<!-- Green Ping -->
+	                                                <span 
+	                                                	class="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75"
+	                                                	x-bind:class="{
+	                                                		'bg-green-400': bartender.status == 'READY',
+	                                                		'bg-yellow-400': bartender.status == 'WORKING' && bartender.statusDetail !== 'replaceKeg',
+	                                                		'bg-red-400': bartender.statusDetail == 'replaceKeg'
+	                                                	}" 
+	                                                ></span>
+	                                                <span 
+	                                                	class="relative inline-flex rounded-full h-3 w-3 border-2 border-gray-700"
+	                                                	:class="{
+	                                                		'bg-green-400': bartender.status == 'READY',
+	                                                		'bg-yellow-400': bartender.status == 'WORKING' && bartender.statusDetail !== 'replaceKeg',
+	                                                		'bg-red-400': bartender.statusDetail == 'replaceKeg'
+	                                                	}" 
+	                                                ></span>
+	                                                <!-- Offline Ping -->
+		                                            <span x-show="(bartender.status != 'WORKING') && (bartender.status != 'READY')" class="relative inline-flex rounded-full h-3 w-3 bg-gray-500 border-2 border-gray-700"></span>
+	                                            </span>
+	                                            <img class="inline-block h-10 w-10 rounded-full" :src="sampleImages[index]" alt="">
+	                                        </div>
+	                                        <div class="ml-3">
+	                                        	<!-- bartender details -->
+	                                            <p x-text="bartender.name" class="text-base font-medium text-white">Name</p>
+	                                            <div>
+		                                            <p class="text-xs font-medium">
+		                                            	<span x-show="bartender.status == 'READY'" x-text="bartender.statusDetail" class="text-green-400">StatusDetail</span>
+		                                            	<span x-show="bartender.statusDetail == 'replaceKeg'" x-text="bartender.statusDetail" class="text-red-400">StatusDetail</span>
+		                                            	<span x-show="(bartender.status == 'WORKING') && (bartender.statusDetail != 'replaceKeg')" x-text="bartender.statusDetail" class="text-yellow-400">StatusDetail</span>
+		                                            </p>
+	                                            </div>
+	                                        </div>
+	                                    </div>
+	                                    <!-- <p class="text-sm mt-3 font-medium text-gray-400 flex items-end">
+	                                        <span>Serving order</span>
+	                                        <span class="text-white px-1">#133</span>
+	                                    </p> -->
+
+
+
+	                                    <!-- order Template -->
+	                                    <div>
+	                                    	<p x-show="(bartender.status == 'WORKING') && (bartender.statusDetail != 'replaceKeg' || bartender.status == 'WORKING')" class="text-sm font-medium text-gray-400 flex items-end mt-3">
+	                                    	    <span>Serving order</span>
+	                                    	    <span class="text-white px-1">#<span x-text="bartender.servingCustomer"></span></span>
+	                                    	</p>
+		                                    <template x-for="beer in Object.keys(bartender.currentOrder)" :key="beer">
+			                                    <p class="text-sm font-medium text-gray-500 ">
+			                                        <span x-text="bartender.currentOrder[beer]" class="text-gray-400">2</span>
+			                                        <span> x </span>
+			                                        <span x-text="beer">Glitchhop</span>
+			                                    </p>
+		                                    </template>
+	                                    </div>
+	                                </div>
+	                            </div>
+	                        </template>
+
+                            <!-- Bartender 4 -->
+                            <!-- <div class="flex-shrink-0 flex bg-gray-700 p-4">
+                                <div class="flex-shrink-0 w-full">
+                                    <div class="flex items-center">
+                                        <div class="relative">
+                                            <span class="absolute flex h-3 w-3">
+                                                <span class="relative inline-flex rounded-full h-3 w-3 bg-gray-500 border-2 border-gray-700"></span>
+                                            </span>
+                                            <img class="inline-block h-10 w-10 rounded-full" src="https://images.unsplash.com/photo-1519244703995-f4e0f30006d5?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80" alt="">
+                                        </div>
+                                        <div class="ml-3">
+                                            <p class="text-base font-medium text-white">Obo Seet</p>
+                                            <p class="text-xs font-medium text-gray-400 ">Offline</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div> -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="flex flex-col w-0 flex-1 overflow-hidden">
+                <main class="flex-1 relative z-0 overflow-y-auto focus:outline-none" tabindex="0">
+                    <div class="py-6">
+                        <!-- Menu -->
+                        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                            <h1 class="text-2xl font-semibold text-gray-900">Our Beer selection 🍺</h1>
+                        </div>
+                        <div class="max-w-7xl mx-auto px-4 sm:px-6 md:px-8">
+                            <div class="py-4">
+                                <!-- Beers -->
+                                <ul class="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5">
+									<template x-for="(beer, index) in beerDetails" :key="index">
+	                                    <li class="col-span-1 flex flex-col text-center bg-white rounded-lg shadow">
+	                                        <div class="flex-1 flex flex-col p-8">
+	                                            <img class="w-16 h-16 flex-shrink-0 mx-auto bg-black rounded-full" :src="`img/${beer.label}`" alt="">
+	                                            <h3 x-text="beer.name" class="mt-6 text-gray-900 text-sm font-medium">Beer name</h3>
+	                                            <!-- <div class="mt-1 flex-grow flex flex-col justify-between">
+	                                                <div class="text-gray-500 text-sm">
+	                                                    <p>Alc. <span x-text="beer.alc">5.4</span>%</p>
+	                                                    <p>Category: <span x-text="beer.category">beer</span></p>
+	                                                </div>
+	                                                    <div class="mt-3">
+	                                                </div>
+	                                            </div> -->
+	                                        </div>
+	                                    </li>
+                                	</template>
+                                </ul>
+
+
+
+                                <!-- <ul class="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 overflow-hidden">
+									<template x-for="(beer, index) in beerDetails" :key="index">
+	                                    <li class="col-span-1 text-center bg-white rounded-lg shadow">
+	                                            <img class="w-16 h-16 flex-shrink-0 mx-auto bg-black rounded-full" :src="`img/${beer.label}`" alt="">
+	                                            <h3 x-text="beer.name" class="mt-6 text-gray-900 text-sm font-medium">Beer name</h3>
+	                                                <div class="text-gray-500 text-sm">
+	                                                    <p>Alc. <span x-text="beer.alc">5.4</span>%</p>
+	                                                    <p>Category: <span x-text="beer.category">beer</span></p>
+	                                                </div>
+	                                    </li>
+                                	</template>
+                                </ul> -->
+
+                                <!-- <ul class="flex flex-nowrap">
+                                	<template x-for="(beer, index) in beerDetails" :key="index">
+                                		
+                                	</template>
+                                </ul> -->
+                            </div>
+                        </div>
+                    </div>
+                </main>
+                <footer class="bg-gray-900">
+                	<!-- Queue -->
+                    <div>
+                        <!-- <h3 class="mt-8 text-2xl leading-6 font-medium text-gray-900">Queue</h3> -->
+                        <div class="relative m-5 grid grid-cols-1 gap-5 sm:grid-cols-5">
+
+			                <div 
+			                	x-show="queue.length == 0"
+			                	class="bg-gray-800 overflow-hidden shadow rounded-lg text-center"
+			                	x-transition:enter="transition ease-out duration-300"
+			            	    x-transition:enter-start="opacity-0 transform scale-90"
+			            	    x-transition:enter-end="opacity-100 transform scale-100"
+			            	    x-transition:leave="transition ease-in duration-300"
+			            	    x-transition:leave-start="opacity-100 transform scale-100"
+			            	    x-transition:leave-end="opacity-0 transform scale-90"
+			                	>
+			                    <div class="px-4 py-5 sm:p-6">
+			                        <div class="mt-1 text-2xl font-medium text-white" >
+			                            No queue 😁
+			                        </div>
+			                    </div>
+			                </div>
+
+                        	<template x-for="(card, index) in queue" :key="index">
+	                        	<!-- queue item -->
+	                            <div 
+	                            	x-show="index + 1 < maxQueueSlots || (index + 1 == maxQueueSlots && queue.length == maxQueueSlots)"
+	                            	class="bg-gray-800 overflow-hidden shadow rounded-lg text-center"
+	                            	x-transition:enter="transition ease-out duration-300"
+                            	    x-transition:enter-start="opacity-0 transform scale-90"
+                            	    x-transition:enter-end="opacity-100 transform scale-100"
+                            	    x-transition:leave="transition ease-in duration-300"
+                            	    x-transition:leave-start="opacity-100 transform scale-100"
+                            	    x-transition:leave-end="opacity-0 transform scale-90"
+	                            	>
+	                                <div class="px-4 py-5">
+	                                    <div class="text-xs font-medium text-gray-500 truncate">
+	                                        Ordered at <span x-text="getOrderTime(card.id, queue)"></span>
+	                                    </div>
+	                                    <div class="mt-1 text-2xl font-medium text-white" >
+	                                        Order #<span x-text="card.id"></span>
+	                                    </div>
+	                                </div>
+	                            </div>
+                        	</template>
+
+                            <div 
+                            	x-show="queue.length > maxQueueSlots"
+                            	class="bg-gray-800 overflow-hidden shadow rounded-lg text-center"
+                            	x-transition:enter="transition ease-out duration-300"
+                        	    x-transition:enter-start="opacity-0 transform scale-90"
+                        	    x-transition:enter-end="opacity-100 transform scale-100"
+                        	    x-transition:leave="transition ease-in duration-300"
+                        	    x-transition:leave-start="opacity-100 transform scale-100"
+                        	    x-transition:leave-end="opacity-0 transform scale-90"
+                            	>
+                                <div class="px-4 py-5 sm:p-6">
+                                    <div class="mt-1 text-2xl font-medium text-white" >
+                                        + <span x-text="queue.length - maxQueueSlots + 1"></span> other
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- <div class="col-end-6 col-span-1 flex justify-center"> -->
+                            	<div class="absolute top-0 right-0 w-24 bg-white shadow-lg rounded-lg -mt-12 mr-8 z-30">
+	                            	<!-- qr code img -->
+	                            	<img src="img/menu_qr_code.png" alt="" class="block">
+	                            	<p class="text-xs font-medium text-center p-1.5">Scan to order</p>
+                            	</div>
+                            <!-- </div> -->
+                        </div>
+                    </div>
+                </footer>
+            </div>
+        </div>
+	</div>
+</body>
+<script src="dashboard.js"></script>
+</html>

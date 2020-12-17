@@ -33,7 +33,9 @@ function barMenu() {
                 overallImpression: "dummy"
             },
         },
-        checkout: false,
+        checkout: true,
+        openCart: true,
+        cartBeer: 0,
 
 
         invalidName: false,
@@ -61,6 +63,7 @@ function barMenu() {
         addBeer(beer) {
             // Search in orderItems array to see if we already have this beer
             let foundBeer = false;
+            this.cartBeer++;
             this.orderItems.forEach( orderItem => { 
                 // If we have the beer in the orderItems array, increase the amount by one
                 if (orderItem.name == beer) {
@@ -84,6 +87,9 @@ function barMenu() {
                     }
                 }
             })
+            if (this.cartBeer>0) {
+                this.cartBeer--;
+            }
         },
         clearOrderItems() {
             this.orderItems = [];
