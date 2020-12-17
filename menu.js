@@ -33,8 +33,8 @@ function barMenu() {
                 overallImpression: "dummy"
             },
         },
-        checkout: true,
-        openCart: true,
+        checkout: false,
+        openCart: false,
         cartBeer: 0,
 
 
